@@ -58,7 +58,7 @@ class AarizDataset(object):
         junior_annotations = [[landmark["value"]["x"], landmark["value"]["y"]] for landmark in junior_annotations["landmarks"]]
         junior_annotations = np.array(junior_annotations, dtype=np.float32)
         
-        landmarks = np.zeros(shape=(NUM_LANDMARKS, 2), dtype=np.float)
+        landmarks = np.zeros(shape=(NUM_LANDMARKS, 2), dtype=np.float64)
         landmarks[:, 0] = np.ceil((0.5) * (junior_annotations[:, 0] + senior_annotations[:, 0]))
         landmarks[:, 1] = np.ceil((0.5) * (junior_annotations[:, 1] + senior_annotations[:, 1]))
         
