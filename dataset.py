@@ -3,9 +3,10 @@ import numpy as np
 import json
 import cv2
 import os
+import torch
 
 class AarizDataset(object):
-    
+
     def __init__(self, dataset_folder_path: str, mode: str):
         
         if (mode == "TRAIN") or (mode == "VALID") or (mode == "TEST"):
@@ -39,8 +40,12 @@ class AarizDataset(object):
         
         image = cv2.imread(file_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = np.array(image, dtype=np.uint8)
+        print(f"Dimension of array is {image.shape}")
+        # conversion to tensor from numpy array
+        image =  torch.from_numpy(image)
         
-        return np.array(image, dtype=np.uint8)
+        return image
     
     
     def get_landmarks(self, file_name):
@@ -61,8 +66,13 @@ class AarizDataset(object):
         landmarks = np.zeros(shape=(NUM_LANDMARKS, 2), dtype=np.float64)
         landmarks[:, 0] = np.ceil((0.5) * (junior_annotations[:, 0] + senior_annotations[:, 0]))
         landmarks[:, 1] = np.ceil((0.5) * (junior_annotations[:, 1] + senior_annotations[:, 1]))
-        
-        return np.array(landmarks, dtype=np.float32)[np.newaxis, :, :]
+
+        landmarks = np.array(landmarks, dtype=np.float32)[np.newaxis, :, :]
+
+        landmarks = torch.from_numpy(np.array(landmarks, dtype=np.float32))
+
+        return landmarks
+
     
     def get_cvm_stage(self, file_name):
         file_path = os.path.join(self.cvm_annotations_root, file_name)
