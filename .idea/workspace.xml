@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2abe7974-15ba-4f85-bca1-42c0d18722ee" name="Changes" comment="Testing dataset.py">
+    <list default="true" id="2abe7974-15ba-4f85-bca1-42c0d18722ee" name="Changes" comment="Max Dimensions of Training Set">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/test.ipynb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -121,7 +122,9 @@
       <workItem from="1768494338705" duration="1848000" />
       <workItem from="1768496909129" duration="617000" />
       <workItem from="1768821115774" duration="14340000" />
-      <workItem from="1769014428648" duration="4741000" />
+      <workItem from="1769014428648" duration="10665000" />
+      <workItem from="1769180510128" duration="284000" />
+      <workItem from="1769180811432" duration="2279000" />
     </task>
     <task id="LOCAL-00001" summary="Second Commit">
       <option name="closed" value="true" />
@@ -163,7 +166,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769003496425</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Max Dimensions of Training Set">
+      <option name="closed" value="true" />
+      <created>1769166209625</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1769166209625</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -195,7 +206,8 @@
     <MESSAGE value="First Commit" />
     <MESSAGE value="Dataset Access Files" />
     <MESSAGE value="Testing dataset.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="Testing dataset.py" />
+    <MESSAGE value="Max Dimensions of Training Set" />
+    <option name="LAST_COMMIT_MESSAGE" value="Max Dimensions of Training Set" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Cephanator$main.coverage" NAME="main Coverage Results" MODIFIED="1768494632175" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

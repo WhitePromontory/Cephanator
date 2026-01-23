@@ -41,9 +41,10 @@ class AarizDataset(object):
         image = cv2.imread(file_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = np.array(image, dtype=np.uint8)
-        print(f"Dimension of array is {image.shape}")
         # conversion to tensor from numpy array
         image =  torch.from_numpy(image)
+        # (C,H,W)
+        image = image.permute(2, 0, 1)
         
         return image
     
@@ -64,12 +65,18 @@ class AarizDataset(object):
         junior_annotations = np.array(junior_annotations, dtype=np.float32)
         
         landmarks = np.zeros(shape=(NUM_LANDMARKS, 2), dtype=np.float64)
+
+        # combine and average landmark classification of juniors and seniors
         landmarks[:, 0] = np.ceil((0.5) * (junior_annotations[:, 0] + senior_annotations[:, 0]))
         landmarks[:, 1] = np.ceil((0.5) * (junior_annotations[:, 1] + senior_annotations[:, 1]))
 
         landmarks = np.array(landmarks, dtype=np.float32)[np.newaxis, :, :]
 
+        # dim (1, 29, 2)
         landmarks = torch.from_numpy(np.array(landmarks, dtype=np.float32))
+
+        # dim (29,2)
+        landmarks = landmarks.squeeze(0)
 
         return landmarks
 
