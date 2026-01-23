@@ -5,6 +5,8 @@ import cv2
 import os
 import torch
 
+import torch.nn.functional as F
+
 class AarizDataset(object):
 
     def __init__(self, dataset_folder_path: str, mode: str):
@@ -34,7 +36,19 @@ class AarizDataset(object):
         cvm_stage = self.get_cvm_stage(label_file_name)
         
         return image, landmarks, cvm_stage
-    
+
+    def __pad_image(self, image, h_max=2300, w_max=2200):
+
+        pad_bottom = h_max - image.shape[1]
+        pad_right = w_max - image.shape[2]
+
+        pad = (0,pad_right,0,pad_bottom)
+
+        padded_image = F.pad(image, pad)
+
+
+        return padded_image
+
     def get_image(self, file_name: str):
         file_path = os.path.join(self.images_root_path, file_name)
         
@@ -45,6 +59,8 @@ class AarizDataset(object):
         image =  torch.from_numpy(image)
         # (C,H,W)
         image = image.permute(2, 0, 1)
+
+        image = self.__pad_image(image)
         
         return image
     
