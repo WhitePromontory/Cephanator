@@ -3,11 +3,14 @@ import numpy as np
 import json
 import cv2
 import os
-import torch
 
+import torch
+from torch.utils.data import Dataset
 import torch.nn.functional as F
 
-class AarizDataset(object):
+
+
+class AarizDataset(Dataset):
 
     def __init__(self, dataset_folder_path: str, mode: str):
         
