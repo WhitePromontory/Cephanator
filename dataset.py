@@ -40,31 +40,32 @@ class AarizDataset(Dataset):
         
         return image, landmarks, cvm_stage
 
-    def __pad_image(self, image, h_max=2300, w_max=2200):
-
-        pad_bottom = h_max - image.shape[1]
-        pad_right = w_max - image.shape[2]
-
-        pad = (0,pad_right,0,pad_bottom)
-
-        padded_image = F.pad(image, pad)
+    # def __pad_image(self, image, h_max=2300, w_max=2200):
+    #
+    #     pad_bottom = h_max - image.shape[1]
+    #     pad_right = w_max - image.shape[2]
+    #
+    #     pad = (0,pad_right,0,pad_bottom)
+    #
+    #     padded_image = F.pad(image, pad)
 
 
         return padded_image
 
-    def get_image(self, file_name: str):
+    def get_image(self, file_name: str, h_max=2750, w_max=2200):
         file_path = os.path.join(self.images_root_path, file_name)
         
         image = cv2.imread(file_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        image = np.array(image, dtype=np.uint8)
-        # conversion to tensor from numpy array
-        image =  torch.from_numpy(image)
-        # (C,H,W)
-        image = image.permute(2, 0, 1)
+        h,w,c = image.shape
 
-        image = self.__pad_image(image)
-        
+
+        padded = np.zeros((h_max, w_max, 3), dtype=np.uint8)
+        padded[:h, :w, :] = image
+
+        # Conversion to tensor from numpy array
+        # (C,H,W)
+        image = torch.from_numpy(padded).permute(2, 0, 1)  # [C,H,W]
         return image
     
     
