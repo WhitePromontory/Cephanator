@@ -32,8 +32,8 @@ class AarizDataset(Dataset):
     
     def __getitem__(self, index):
         image_file_name = self.images_list[index]
+        # get name of image file and combine to get corresponding json file.
         label_file_name = self.images_list[index].split(".")[0] + "." + "json"
-        
         image = self.get_image(image_file_name)
         landmarks = self.get_landmarks(label_file_name)
         cvm_stage = self.get_cvm_stage(label_file_name)
