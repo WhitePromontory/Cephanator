@@ -39,3 +39,19 @@ def draw_points(image,landmarks, scale=0.3,
                 font, font_scale, label_color)
 
     return img
+
+
+def draw_batch (images, landmarks):
+
+    for image, landmark in zip(images, landmarks):
+
+        # image tensor is now shape (3, 2300, 2200) -> A TENSOR
+        # landmark tensor is now shape (29, 2)    -> A TENSOR
+
+        result = draw_points(image, landmark)
+        cv2.imshow("check", result)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+
+
