@@ -28,14 +28,15 @@ class AarizDataset(Dataset):
         self.cvm_annotations_root = os.path.join(self.labels_root_path, "CVM Stages")
         
         self.images_list = os.listdir(self.images_root_path)
+        self.target_size = 512
         
     
     def __getitem__(self, index):
         image_file_name = self.images_list[index]
         # get name of image file and combine to get corresponding json file.
         label_file_name = self.images_list[index].split(".")[0] + "." + "json"
-        image = self.get_image(image_file_name)
-        landmarks = self.get_landmarks(label_file_name)
+        image, (scale_x, scale_y) = self.get_image(image_file_name)
+        landmarks = self.get_landmarks(label_file_name, (scale_x, scale_y))
         cvm_stage = self.get_cvm_stage(label_file_name)
         
         return image, landmarks, cvm_stage
@@ -59,17 +60,27 @@ class AarizDataset(Dataset):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         h,w,c = image.shape
 
-
         padded = np.zeros((h_max, w_max, 3), dtype=np.uint8)
         padded[:h, :w, :] = image
 
+        # resize to 512 by 512 for ResNet
+
+        resized = cv2.resize(padded, (self.target_size, self.target_size))
+
+        # convert to float tensor with RGB values reduced to values between 0 and 1
+        image_tensor = torch.from_numpy(resized).permute(2, 0, 1).float() / 255.0
+
+        # scale factor for co-ordinates
+
+        scale_factor = (self.target_size/w_max, self.target_size/h_max)
+
         # Conversion to tensor from numpy array
         # (C,H,W)
-        image = torch.from_numpy(padded).permute(2, 0, 1)  # [C,H,W]
-        return image
+        # image = torch.from_numpy(padded).permute(2, 0, 1)  # [C,H,W]
+        return image_tensor, scale_factor
     
     
-    def get_landmarks(self, file_name):
+    def get_landmarks(self, file_name,scale_factor):
         file_path = os.path.join(self.senior_annotations_root, file_name)
         with open(file_path, mode="r") as file:
             senior_annotations = json.load(file)
@@ -84,16 +95,29 @@ class AarizDataset(Dataset):
         junior_annotations = [[landmark["value"]["x"], landmark["value"]["y"]] for landmark in junior_annotations["landmarks"]]
         junior_annotations = np.array(junior_annotations, dtype=np.float32)
         
-        landmarks = np.zeros(shape=(NUM_LANDMARKS, 2), dtype=np.float64)
+        # landmarks = np.zeros(shape=(NUM_LANDMARKS, 2), dtype=np.float64)
 
         # combine and average landmark classification of juniors and seniors
-        landmarks[:, 0] = np.ceil((0.5) * (junior_annotations[:, 0] + senior_annotations[:, 0]))
-        landmarks[:, 1] = np.ceil((0.5) * (junior_annotations[:, 1] + senior_annotations[:, 1]))
+        # landmarks[:, 0] = np.ceil((0.5) * (junior_annotations[:, 0] + senior_annotations[:, 0]))
+        # landmarks[:, 1] = np.ceil((0.5) * (junior_annotations[:, 1] + senior_annotations[:, 1]))
 
-        landmarks = np.array(landmarks, dtype=np.float32)[np.newaxis, :, :]
+        # average x co-ordinates of junior and senior for each landmark
+        avg_x = (junior_annotations[:, 0] + senior_annotations[:, 0]) / 2.0
+        # average y co-ordinates of junior and senior per landmark
+        avg_y = (junior_annotations[:, 1] + senior_annotations[:, 1]) / 2.0
+
+        # landmarks = np.array(landmarks, dtype=np.float32)[np.newaxis, :, :]
+        # (29,2)
+        landmarks = np.stack([avg_x, avg_y], axis=1)
+
+        landmarks[:, 0] = landmarks[:, 0] * scale_factor[0]
+        landmarks[:, 1] = landmarks[:, 1] * scale_factor[1]
 
         # dim (1, 29, 2)
         landmarks = torch.from_numpy(np.array(landmarks, dtype=np.float32))
+
+        # reduce co-ordinates to within 0 and 1
+        landmarks = landmarks / self.target_size
 
         # dim (29,2)
         landmarks = landmarks.squeeze(0)
