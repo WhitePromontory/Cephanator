@@ -29,7 +29,7 @@ class AarizDataset(Dataset):
         
         self.images_list = os.listdir(self.images_root_path)
         self.target_size = 512
-        self.h_max, self.w_max = 2750, 2200
+        # self.h_max, self.w_max = 2750, 2200
         
     
     def __getitem__(self, index):
@@ -61,7 +61,10 @@ class AarizDataset(Dataset):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         h,w,c = image.shape
 
-        padded = np.zeros((self.h_max, self.w_max, 3), dtype=np.uint8)
+        side = max(h, w)
+
+
+        padded = np.zeros((side, side, 3), dtype=np.uint8)
         padded[:h, :w, :] = image
 
         # resize to 512 by 512 for ResNet
@@ -71,8 +74,8 @@ class AarizDataset(Dataset):
         # convert to float tensor with RGB values reduced to values between 0 and 1
         image_tensor = torch.from_numpy(resized).permute(2, 0, 1).float() / 255.0
 
-        # scale factor for co-ordinates to get to 512 by 512
-        scale_factor = (self.target_size/self.w_max, self.target_size/self.h_max)
+        # scale factor for co-ordinates in 512 by 512 image
+        scale_factor = (self.target_size/side, self.target_size/side)
 
         # Conversion to tensor from numpy array
         # (C,H,W)
