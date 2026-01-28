@@ -29,6 +29,7 @@ class AarizDataset(Dataset):
         
         self.images_list = os.listdir(self.images_root_path)
         self.target_size = 512
+        self.h_max, self.w_max = 2750, 2200
         
     
     def __getitem__(self, index):
@@ -53,14 +54,14 @@ class AarizDataset(Dataset):
 
         return padded_image
 
-    def get_image(self, file_name: str, h_max=2750, w_max=2200):
+    def get_image(self, file_name: str):
         file_path = os.path.join(self.images_root_path, file_name)
         
         image = cv2.imread(file_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         h,w,c = image.shape
 
-        padded = np.zeros((h_max, w_max, 3), dtype=np.uint8)
+        padded = np.zeros((self.h_max, self.w_max, 3), dtype=np.uint8)
         padded[:h, :w, :] = image
 
         # resize to 512 by 512 for ResNet
@@ -70,9 +71,8 @@ class AarizDataset(Dataset):
         # convert to float tensor with RGB values reduced to values between 0 and 1
         image_tensor = torch.from_numpy(resized).permute(2, 0, 1).float() / 255.0
 
-        # scale factor for co-ordinates
-
-        scale_factor = (self.target_size/w_max, self.target_size/h_max)
+        # scale factor for co-ordinates to get to 512 by 512
+        scale_factor = (self.target_size/self.w_max, self.target_size/self.h_max)
 
         # Conversion to tensor from numpy array
         # (C,H,W)
@@ -116,7 +116,7 @@ class AarizDataset(Dataset):
         # dim (1, 29, 2)
         landmarks = torch.from_numpy(np.array(landmarks, dtype=np.float32))
 
-        # reduce co-ordinates to within 0 and 1
+        # reduce co-ordinates to within 0 and 1 by dividing by 512
         landmarks = landmarks / self.target_size
 
         # dim (29,2)

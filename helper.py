@@ -1,5 +1,6 @@
 from config import ANATOMICAL_LANDMARKS
 import cv2
+import numpy as np
 
 
 def draw_labeled_point(img, x, y, label, point_color = (0.0,255), label_color=(0,0,0)):
@@ -9,15 +10,16 @@ def draw_labeled_point(img, x, y, label, point_color = (0.0,255), label_color=(0
 
 
 
-def draw_points(image,landmarks, scale=0.3,
+def draw_points(image,landmarks, scale=2,
                 point_radius =5, point_color = (0.0,255), point_thickness=-1,
-                 offset =6, font = cv2.FONT_HERSHEY_SIMPLEX, font_scale = 0.5, label_color=(0,0,255)):
+                 offset =6, font = cv2.FONT_HERSHEY_SIMPLEX, font_scale = 0.5, label_color=(0,0,255),
+                target_size =512):
 
     # ---- tensor → numpy ----
     img = image.detach().cpu().numpy()
 
      # handle channel-first tensors: (3, H, W) RGB -> (H,W,3)
-    img = img.transpose(1, 2, 0)
+    img = (img.transpose(1, 2, 0) * 255).astype(np.uint8)
 
            # ---- resize for display ----
     img = cv2.resize(img, (0, 0), fx=scale, fy=scale)
@@ -28,9 +30,10 @@ def draw_points(image,landmarks, scale=0.3,
 
     for i, point in enumerate(points):
         x,y = point
+
                 # scaled landmark
-        x_s = int(x * scale)
-        y_s = int(y * scale)
+        x_s = int(x * target_size * scale)
+        y_s = int(y * target_size * scale)
 
         label = landmark_symbols[i]
 
