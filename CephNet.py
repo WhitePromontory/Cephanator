@@ -42,6 +42,8 @@ def train(model, dataloader, loss_fn, optimizer, device, i):
     :param i: Number of Epochs
     :return: Average loss, Euclidean distance per image
     """
+
+    model.train()
     train_loss = 0
     total_euclid = 0
 
@@ -68,14 +70,14 @@ def train(model, dataloader, loss_fn, optimizer, device, i):
 
         # average batch loss * batch number
         train_loss += loss.item() * input.size(0)
-        total_euclid += batch_mre * input.size(0)
+        total_euclid += batch_mre.item() * input.size(0)
 
 
     # average loss per image in epoch
     epoch_loss = train_loss / len(dataloader.dataset)
-    print(f"Epoch: {i} | Average Training Loss: {epoch_loss}")
+    print(f"Epoch: {i} | Average Training Loss: {epoch_loss:.6f}")
     avg_euclid = total_euclid / len(dataloader.dataset)
-    print(f"Epoch: {i} | Average Euclidean Distance: {avg_euclid}")
+    print(f"Epoch: {i} | Average Euclidean Distance: {avg_euclid:.4f}")
 
     return epoch_loss, avg_euclid
 
@@ -90,6 +92,7 @@ def validate (model, dataloader, loss_fn,device, i):
     :param i: Number of Epochs
     :return: Average loss, Euclidean distance per image
     """
+    model.eval()
     val_loss = 0
     total_euclid = 0
     with torch.no_grad():
@@ -112,9 +115,9 @@ def validate (model, dataloader, loss_fn,device, i):
 
     # average loss per image
     epoch_loss = val_loss / len(dataloader.dataset)
-    print(f"Epoch: {i} | Average Val Loss: {epoch_loss}")
+    print(f"Epoch: {i} | Average Val Loss: {epoch_loss:.6f}")
     avg_euclid = total_euclid / len(dataloader.dataset)
-    print(f"Epoch: {i} | Average Euclidean Distance: {avg_euclid}")
+    print(f"Epoch: {i} | Average Euclidean Distance: {avg_euclid:.4f}")
 
     return val_loss, avg_euclid
 
@@ -130,7 +133,7 @@ def test (model, dataloader, loss_fn,device, i):
     :return: Average loss, Euclidean distance per image
     """
 
-
+    model.eval()
     test_loss = 0
     total_euclid = 0
 
@@ -155,9 +158,9 @@ def test (model, dataloader, loss_fn,device, i):
 
     # average loss per image
     epoch_loss = test_loss / len(dataloader.dataset)
-    print(f"Epoch: {i} | Average Val Loss: {epoch_loss}")
+    print(f"Epoch: {i} | Average Val Loss: {epoch_loss:.6f}")
     avg_euclid = total_euclid / len(dataloader.dataset)
-    print(f"Epoch: {i} | Average Euclidean Distance: {avg_euclid}")
+    print(f"Epoch: {i} | Average Euclidean Distance: {avg_euclid:.4f}")
 
     return test_loss,avg_euclid
 
