@@ -3,6 +3,16 @@ from torch import nn
 from torchvision import models
 
 class CephNet(nn.Module):
+    """
+    CephNet Model, comprised of ResNet50 and a modified FC layer
+
+    Input: Batch of RGB 512 x 512 cephalograms, (Batch, 3, 512, 512)
+
+    Output: A batch of 29 landmarks, defined by co-ordinates (Batch, 29, 2)
+
+
+
+    """
     def __init__(self):
         super().__init__()
         self.ResNet = models.resnet50(weights="DEFAULT")
@@ -22,6 +32,16 @@ class CephNet(nn.Module):
 
 
 def train(model, dataloader, loss_fn, optimizer, device, i):
+    """
+
+    :param model: CephNet model
+    :param dataloader: Training Dataloader
+    :param loss_fn: Loss Function
+    :param optimizer: Optimization Function
+    :param device: GPU or CPU
+    :param i: Number of Epochs
+    :return: Average loss, Euclidean distance per image
+    """
     train_loss = 0
     total_euclid = 0
 
@@ -61,6 +81,15 @@ def train(model, dataloader, loss_fn, optimizer, device, i):
 
 
 def validate (model, dataloader, loss_fn,device, i):
+    """
+
+    :param model: CephNet model
+    :param dataloader: Validation Dataloader
+    :param loss_fn: Loss Function
+    :param device: GPU or CPU
+    :param i: Number of Epochs
+    :return: Average loss, Euclidean distance per image
+    """
     val_loss = 0
     total_euclid = 0
     with torch.no_grad():
@@ -91,6 +120,17 @@ def validate (model, dataloader, loss_fn,device, i):
 
 
 def test (model, dataloader, loss_fn,device, i):
+    """
+
+    :param model: CephNet Model
+    :param dataloader: Test Dataloader
+    :param loss_fn: Loss Function
+    :param device: GPU or CPU
+    :param i: Number of Epochs
+    :return: Average loss, Euclidean distance per image
+    """
+
+
     test_loss = 0
     total_euclid = 0
 
@@ -136,7 +176,3 @@ def calculate_mre(predictions, targets):
 
     # Return the average distance across all landmarks in the batch
     return distances.mean()
-
-
-
-
