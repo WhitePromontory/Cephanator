@@ -61,6 +61,7 @@ class AarizDataset(Dataset):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         h,w,c = image.shape
 
+        # pad to square using the largest dimension on image - means no squeeze when resized to 512 by 512
         side = max(h, w)
 
 
