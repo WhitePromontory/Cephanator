@@ -1,3 +1,4 @@
+import torch
 from torch import nn
 from torchvision import models
 
@@ -18,4 +19,124 @@ class CephNet(nn.Module):
         output = flat_output.view(-1,29,2)
 
         return output
+
+
+def train(model, dataloader, loss_fn, optimizer, device, i):
+    train_loss = 0
+    total_euclid = 0
+
+    for batch_idx, (input, targets) in enumerate(dataloader):
+        # Every data instance is an input + label pair
+        input = input.to(device)
+        target = targets.to(device)
+
+        # Zero your gradients for every batch!
+        optimizer.zero_grad()
+
+        # Make predictions for this batch
+        output = model(input)
+
+        # Compute the loss and its gradients
+        loss = loss_fn(output, target)
+        batch_mre = calculate_mre(output, target)
+
+        # backprop
+        loss.backward()
+
+        # Adjust learning weights
+        optimizer.step()
+
+        # average batch loss * batch number
+        train_loss += loss.item() * input.size(0)
+        total_euclid += batch_mre * input.size(0)
+
+
+    # average loss per image in epoch
+    epoch_loss = train_loss / len(dataloader.dataset)
+    print(f"Epoch: {i} | Average Training Loss: {epoch_loss}")
+    avg_euclid = total_euclid / len(dataloader.dataset)
+    print(f"Epoch: {i} | Average Euclidean Distance: {avg_euclid}")
+
+    return epoch_loss, avg_euclid
+
+
+def validate (model, dataloader, loss_fn,device, i):
+    val_loss = 0
+    total_euclid = 0
+    with torch.no_grad():
+        for batch_idx, (input, target) in enumerate(dataloader):
+            # Every data instance is an input + label pair
+            input = input.to(device)
+            target = target.to(device)
+
+            # Make predictions for this batch
+            output = model(input)
+
+            # Compute the loss and its gradients
+            loss = loss_fn(output, target)
+            batch_mre = calculate_mre(output, target)
+
+
+            # Average val of batch * batch num
+            val_loss += loss.item() * input.size(0)
+            total_euclid += batch_mre * input.size(0)
+
+    # average loss per image
+    epoch_loss = val_loss / len(dataloader.dataset)
+    print(f"Epoch: {i} | Average Val Loss: {epoch_loss}")
+    avg_euclid = total_euclid / len(dataloader.dataset)
+    print(f"Epoch: {i} | Average Euclidean Distance: {avg_euclid}")
+
+    return val_loss, avg_euclid
+
+
+def test (model, dataloader, loss_fn,device, i):
+    test_loss = 0
+    total_euclid = 0
+
+    with torch.no_grad():
+        for batch_idx, (input, target) in enumerate(dataloader):
+            # Every data instance is an input + label pair
+            input = input.to(device)
+            target = target.to(device)
+
+
+            # Make predictions for this batch
+            output = model(input)
+
+            # Compute the loss and its gradients
+            loss = loss_fn(output, target)
+
+            # Average val of batch * batch num
+            test_loss += loss.item() * input.size(0)
+
+            batch_mre = calculate_mre(output, target)
+            total_euclid += batch_mre * input.size(0)
+
+    # average loss per image
+    epoch_loss = test_loss / len(dataloader.dataset)
+    print(f"Epoch: {i} | Average Val Loss: {epoch_loss}")
+    avg_euclid = total_euclid / len(dataloader.dataset)
+    print(f"Epoch: {i} | Average Euclidean Distance: {avg_euclid}")
+
+    return test_loss,avg_euclid
+
+
+def calculate_mre(predictions, targets):
+    """
+    Calculates Euclidean Distance of predicted and target landmark coordinates
+
+    Shapes: (Batch, 29, 2)
+    """
+    # 1. Calculate (delta_x, delta_y)
+    # 2. (delta_x)^2 + (delta_y)^2
+    # 3. Aggregate Sum x^2 and y^2 along the last dimension (dim=-1), sigma 1 to b ((x^2+y^2))
+    # 4. Square root to get the Euclidean distance of each batch
+    distances = torch.sqrt(torch.sum((predictions - targets) ** 2, dim=-1))
+
+    # Return the average distance across all landmarks in the batch
+    return distances.mean()
+
+
+
 
