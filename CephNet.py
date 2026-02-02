@@ -111,7 +111,7 @@ def validate (model, dataloader, loss_fn,device, i):
 
             # Average val of batch * batch num
             val_loss += loss.item() * input.size(0)
-            total_euclid += batch_mre * input.size(0)
+            total_euclid += batch_mre.item() * input.size(0)
 
     # average loss per image
     epoch_loss = val_loss / len(dataloader.dataset)
@@ -119,7 +119,7 @@ def validate (model, dataloader, loss_fn,device, i):
     avg_euclid = total_euclid / len(dataloader.dataset)
     print(f"Epoch: {i} | Average Euclidean Distance: {avg_euclid:.4f}")
 
-    return val_loss, avg_euclid
+    return epoch_loss, avg_euclid
 
 
 def test (model, dataloader, loss_fn,device, i):
@@ -154,7 +154,7 @@ def test (model, dataloader, loss_fn,device, i):
             test_loss += loss.item() * input.size(0)
 
             batch_mre = calculate_mre(output, target)
-            total_euclid += batch_mre * input.size(0)
+            total_euclid += batch_mre.item() * input.size(0)
 
     # average loss per image
     epoch_loss = test_loss / len(dataloader.dataset)
@@ -162,7 +162,7 @@ def test (model, dataloader, loss_fn,device, i):
     avg_euclid = total_euclid / len(dataloader.dataset)
     print(f"Epoch: {i} | Average Euclidean Distance: {avg_euclid:.4f}")
 
-    return test_loss,avg_euclid
+    return epoch_loss,avg_euclid
 
 
 def calculate_mre(predictions, targets):

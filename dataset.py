@@ -38,9 +38,10 @@ class AarizDataset(Dataset):
         label_file_name = self.images_list[index].split(".")[0] + "." + "json"
         image, (scale_x, scale_y) = self.get_image(image_file_name)
         landmarks = self.get_landmarks(label_file_name, (scale_x, scale_y))
-        cvm_stage = self.get_cvm_stage(label_file_name)
+        # cvm_stage = self.get_cvm_stage(label_file_name)
+        # not return cvm stage
         
-        return image, landmarks, cvm_stage
+        return image, landmarks
 
     # def __pad_image(self, image, h_max=2300, w_max=2200):
     #
